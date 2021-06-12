@@ -8,6 +8,7 @@
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from datetime import datetime
+import calendar
 import json
 
 
@@ -54,17 +55,19 @@ class DuplicatesPipeline:
 class FilterDatePipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
-        from_date = getattr(spider, 'from_date', None)
-        to_date = getattr(spider, 'to_date', None)
-        if from_date is not None and to_date is not None:
-            from_date = datetime.strptime(from_date, "%Y-%m-%d")
-            to_date = datetime.strptime(to_date, "%Y-%m-%d")
+        month = getattr(spider, 'month', None)
+        if month is not None:
+            month = int(month)
+            year = datetime.today().year
+            last_date_of_month = calendar.monthrange(year, month)[1]
+            from_date = datetime(year, month, 1)
+            to_date = datetime(year, month, last_date_of_month)
             item_date = datetime.strptime(
                 adapter['date'].split('T')[0], "%Y-%m-%d")
             if item_date >= from_date and item_date <= to_date:
                 return item
             else:
                 raise DropItem(
-                    f"Article is not posted in date range: {item!r}, ignore")
+                    f"Article is not posted in that month: {item!r}, ignore")
         else:
             return item
