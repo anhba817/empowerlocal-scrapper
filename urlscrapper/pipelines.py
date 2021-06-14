@@ -24,16 +24,18 @@ class UrlscrapperPipeline:
 
     def open_spider(self, spider):
         customer = getattr(spider, 'customer', None)
-        if customer is not None:
-            self.file = open("%s.txt" % customer, 'w')
-            if customer in self.sponsor_urls:
-                self.file.write("{\"article\": \"%s\", \"date\": \"None\"}\n" % self.sponsor_urls[customer])
+        self.customer = customer
+        out_file = getattr(spider, 'output', None)
+        self.file = open(out_file, 'a')
+        if customer is not None and customer in self.sponsor_urls:
+            self.file.write("%s\t%s\n" % (customer, self.sponsor_urls[customer]))
 
     def close_spider(self, spider):
         self.file.close()
 
     def process_item(self, item, spider):
-        line = json.dumps(ItemAdapter(item).asdict()) + "\n"
+        adapter = ItemAdapter(item)
+        line = "%s\t%s\t%s\n" % (self.customer, adapter['article'], adapter['date'].split('T')[0])
         self.file.write(line)
         return item
 
