@@ -31,14 +31,20 @@ class CsvExportPipeline:
         customer = getattr(spider, 'customer', None)
         self.customer = customer
         out_file = getattr(spider, 'output', None)
+        print_header = getattr(spider, 'print_header', "True")
+        print_header = print_header == "True"
         self.csv_file = open(out_file, 'wb')
-        self.exporter = MyCsvItemExporter(self.csv_file, fields_to_export=["client", "article", "date", "title"])
+        self.exporter = MyCsvItemExporter(
+            self.csv_file,
+            fields_to_export=["client", "article", "date", "title"],
+            include_headers_line=print_header
+        )
         self.exporter.start_exporting()
         if customer is not None and customer in self.sponsor_urls:
             item = UrlscrapperItem(
                 client=customer,
                 article=self.sponsor_urls[customer]['url'].split('/')[-2],
-                date=datetime.now(),
+                date=datetime.now().strftime("%m/%d/%Y"),
                 title=self.sponsor_urls[customer]['title']
             )
             self.exporter.export_item(item)
@@ -103,8 +109,7 @@ class FilterDatePipeline:
             last_date_of_month = calendar.monthrange(year, month)[1]
             from_date = datetime(year, month, 1)
             to_date = datetime(year, month, last_date_of_month)
-            item_date = datetime.strptime(
-                adapter['date'].split('T')[0], "%Y-%m-%d")
+            item_date = datetime.strptime(adapter['date'], "%m/%d/%Y")
             if item_date >= from_date and item_date <= to_date:
                 return item
             else:

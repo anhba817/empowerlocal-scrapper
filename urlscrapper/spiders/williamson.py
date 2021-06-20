@@ -1,5 +1,5 @@
 import scrapy
-
+import dateutil.parser
 
 class WilliamsonSpider(scrapy.Spider):
     name = 'williamson'
@@ -28,6 +28,7 @@ class WilliamsonSpider(scrapy.Spider):
         for post in post_selectors:
             article_url = post.css('.td-module-thumb').xpath('./a/@href').get()
             date = post.css('.td-post-date').xpath('./time/@datetime').get()
+            date = dateutil.parser.parse(date).strftime("%m/%d/%Y")
             my_request = scrapy.Request(article_url,
                             callback=self.parse_article,
                             cb_kwargs=dict(article=article_url.split('/')[-2], date=date))

@@ -33,12 +33,24 @@ CUSTOMER = [
 if os.path.exists("result.csv"):
     os.remove("result.csv")
     f = open("result.csv", 'w')
-    f.write("Customer\tURL\tDate\n")
+    f.write("Client,Page,Date of Publish,Page Title\n")
     f.close()
 
 process = CrawlerProcess(get_project_settings())
 
 # 'williamson' is the name of one of the spiders of the project.
-for customer in CUSTOMER:
-    process.crawl('williamson', customer=customer, month=6, output="result.csv")
+file_list = []
+for index, customer in enumerate(CUSTOMER):
+    out_file = "result_%s.csv" % index
+    file_list.append(out_file)
+    process.crawl('williamson', customer=customer, month=5, output=out_file, print_header="False")
 process.start() # the script will block here until the crawling is finished
+
+final_result = open("result.csv", 'a+')
+for myF in file_list:
+    myFile = open(myF, 'r')
+    final_result.write(myFile.read())
+    myFile.close()
+    os.remove(myF)
+
+final_result.close()
