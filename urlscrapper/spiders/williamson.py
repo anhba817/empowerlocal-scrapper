@@ -27,15 +27,22 @@ class WilliamsonSpider(scrapy.Spider):
             '.td-ss-main-content').css('.td_module_1')
         for post in post_selectors:
             article_url = post.css('.td-module-thumb').xpath('./a/@href').get()
-            article_title = post.css('.td-module-thumb').xpath('./a/@title').get() + " - Williamson Source"
-            yield {
-                'client': self.customer,
-                'article': article_url.split('/')[-2],
-                'date': post.css('.td-post-date').xpath('./time/@datetime').get(),
-                'title': article_title
-            }
+            date = post.css('.td-post-date').xpath('./time/@datetime').get()
+            my_request = scrapy.Request(article_url,
+                            callback=self.parse_article,
+                            cb_kwargs=dict(article=article_url.split('/')[-2], date=date))
+            yield my_request
+            
         next_page = response.css(
             '.td-pb-padding-side').css('.current').xpath('./following-sibling::a[1]/@href').get()
         if next_page is not None and int(next_page.split('page/')[-1].split('/')[0]) < self.PAGE_MAX:
             next_page = response.urljoin(next_page)
             yield scrapy.Request(next_page, callback=self.parse)
+    
+    def parse_article(self, response, article, date):
+        yield {
+            'client': self.customer,
+            'article': article,
+            'date': date,
+            'title': response.xpath('//head/title/text()').get()
+        }
