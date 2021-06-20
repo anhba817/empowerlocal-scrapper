@@ -7,6 +7,7 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import pathlib
 BOT_NAME = 'urlscrapper'
 
 SPIDER_MODULES = ['urlscrapper.spiders']
@@ -65,7 +66,7 @@ ROBOTSTXT_OBEY = True
 ITEM_PIPELINES = {
     'urlscrapper.pipelines.DuplicatesPipeline': 100,
     'urlscrapper.pipelines.FilterDatePipeline': 200,
-    'urlscrapper.pipelines.UrlscrapperPipeline': 300,
+    'urlscrapper.pipelines.CsvExportPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -152,10 +153,35 @@ CRAWL_URLS = {
 }
 
 SPONSOR_URLS = {
-    'A Moment Peace': 'https://williamsonsource.com/style/',
-    'Franklin Athletic Club': 'https://williamsonsource.com/health-fitness/',
-    'Brentwood Place': 'https://williamsonsource.com/brentwood/',
-    'Delivery.com': 'https://williamsonsource.com/eat-and-drink/',
-    'Peek Pools & Spas': 'https://williamsonsource.com/kids-and-family/',
-    'Warren Bradley Partners': 'https://williamsonsource.com/relocating-to-williamson-county/',
+    'A Moment Peace': {
+        'url': 'https://williamsonsource.com/style/',
+        'title': "Style - Williamson Source"
+    },
+    'Franklin Athletic Club': {
+        'url': 'https://williamsonsource.com/health-fitness/',
+        'title': "Health & Fitness - Williamson Source"
+    },
+    'Brentwood Place': {
+        'url': 'https://williamsonsource.com/brentwood/',
+        'title': "Brentwood TN"
+    },
+    'Delivery.com': {
+        'url': 'https://williamsonsource.com/eat-and-drink/',
+        'title': "Eat & Drink - Williamson Source"
+        },
+    'Peek Pools & Spas': {
+        'url': 'https://williamsonsource.com/kids-and-family/',
+        'title': "Kids & Family - Williamson Source"
+    },
+    'Warren Bradley Partners': {
+        'url': 'https://williamsonsource.com/relocating-to-williamson-county/',
+        'title': "Relocating to Williamson County - Williamson Source"
+    },
 }
+
+# FEEDS = {
+#     pathlib.Path('result.csv'): {
+#         'format': 'csv',
+#         'fields': None,
+#     },
+# }

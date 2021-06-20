@@ -7,8 +7,8 @@ class WilliamsonSpider(scrapy.Spider):
 
     def start_requests(self):
         CRAWL_URLS = self.settings.get('CRAWL_URLS')
-        customer = getattr(self, 'customer', None)
-        if not customer:
+        self.customer = getattr(self, 'customer', None)
+        if not self.customer:
             print('#########################################')
             print("ERROR: No customer provided")
             print('#########################################')
@@ -22,12 +22,17 @@ class WilliamsonSpider(scrapy.Spider):
             print('#########################################')
 
     def parse(self, response):
+        title = response.xpath('//head/title/text()').get()
         post_selectors = response.css(
             '.td-ss-main-content').css('.td_module_1')
         for post in post_selectors:
+            article_url = post.css('.td-module-thumb').xpath('./a/@href').get()
+            article_title = post.css('.td-module-thumb').xpath('./a/@title').get() + " - Williamson Source"
             yield {
-                'article': post.css('.td-module-thumb').xpath('./a/@href').get(),
-                'date': post.css('.td-post-date').xpath('./time/@datetime').get()
+                'client': self.customer,
+                'article': article_url.split('/')[-2],
+                'date': post.css('.td-post-date').xpath('./time/@datetime').get(),
+                'title': article_title
             }
         next_page = response.css(
             '.td-pb-padding-side').css('.current').xpath('./following-sibling::a[1]/@href').get()

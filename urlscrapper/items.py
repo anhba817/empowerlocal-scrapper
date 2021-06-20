@@ -9,5 +9,7 @@ import scrapy
 class UrlscrapperItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    client = scrapy.Field()
     article = scrapy.Field()
     date = scrapy.Field()
+    title = scrapy.Field()

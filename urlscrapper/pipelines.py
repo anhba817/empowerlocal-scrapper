@@ -11,6 +11,45 @@ from datetime import datetime
 import calendar
 import json
 
+import sys 
+import os
+sys.path.append(os.getcwd())
+from items import UrlscrapperItem
+from exporters import MyCsvItemExporter
+
+class CsvExportPipeline:
+    def __init__(self, sponsor_urls):
+        self.sponsor_urls = sponsor_urls
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            sponsor_urls=crawler.settings.get('SPONSOR_URLS')
+        )
+
+    def open_spider(self, spider):
+        customer = getattr(spider, 'customer', None)
+        self.customer = customer
+        out_file = getattr(spider, 'output', None)
+        self.csv_file = open(out_file, 'wb')
+        self.exporter = MyCsvItemExporter(self.csv_file, fields_to_export=["client", "article", "date", "title"])
+        self.exporter.start_exporting()
+        if customer is not None and customer in self.sponsor_urls:
+            item = UrlscrapperItem(
+                client=customer,
+                article=self.sponsor_urls[customer]['url'].split('/')[-2],
+                date=datetime.now(),
+                title=self.sponsor_urls[customer]['title']
+            )
+            self.exporter.export_item(item)
+
+    def close_spider(self, spider):
+        self.exporter.finish_exporting()
+        self.csv_file.close()
+
+    def process_item(self, item, spider):
+        self.exporter.export_item(item)
+        return item
 
 class UrlscrapperPipeline:
     def __init__(self, sponsor_urls):
