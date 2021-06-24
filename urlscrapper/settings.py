@@ -20,15 +20,17 @@ NEWSPIDER_MODULE = 'urlscrapper.spiders'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
+LOG_LEVEL = 'ERROR'
+
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 0.5
 # The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 4
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
@@ -71,14 +73,14 @@ ITEM_PIPELINES = {
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
-AUTOTHROTTLE_ENABLED = True
+# AUTOTHROTTLE_ENABLED = True
 # The initial download delay
 #AUTOTHROTTLE_START_DELAY = 5
 # The maximum download delay to be set in case of high latencies
 #AUTOTHROTTLE_MAX_DELAY = 60
 # The average number of requests Scrapy should be sending in parallel to
 # each remote server
-AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+# AUTOTHROTTLE_TARGET_CONCURRENCY = 1
 # Enable showing throttling stats for every response received:
 #AUTOTHROTTLE_DEBUG = False
 
@@ -94,11 +96,9 @@ CRAWL_URLS = {
     'A Moment Peace': [
         'https://williamsonsource.com/tag/a-moments-peace/',
         'https://williamsonsource.com/tag/a-moments-peace-salon-and-day-spa/',
-        'https://williamsonsource.com/tag/style/'
     ],
     'Franklin Athletic Club': [
         'https://williamsonsource.com/tag/franklin-athletic-club/',
-        'https://williamsonsource.com/tag/health-fitness/'
     ],
     'Bone and Joint Institute of TN': [
         'https://williamsonsource.com/tag/bone-and-joint-institute/',
@@ -106,7 +106,6 @@ CRAWL_URLS = {
     ],
     'Brentwood Place': [
         'https://williamsonsource.com/tag/brentwood-place/',
-        'https://williamsonsource.com/tag/brentwood/'
     ],
     'Caregivers by Wholecare': ['https://williamsonsource.com/tag/caregivers-by-wholecare/'],
     'Columbia Crawlspace': ['https://williamsonsource.com/tag/columbia-crawlspace/'],
@@ -125,7 +124,6 @@ CRAWL_URLS = {
     'Peek Pools & Spas': [
         'https://williamsonsource.com/tag/peek-pools/',
         'https://williamsonsource.com/tag/peek-pools-and-spas/',
-        'https://williamsonsource.com/tag/kids-and-family/'
     ],
     'Play It Again Sports': ['https://williamsonsource.com/tag/play-it-again-sports/'],
     'Pretty in Pink Boutique': [
@@ -135,14 +133,11 @@ CRAWL_URLS = {
     'Soltea': ['https://williamsonsource.com/tag/soltea/'],
     'Susan Gregory': [
         'https://williamsonsource.com/tag/susan-gregory/',
-        'https://williamsonsource.com/tag/real-estate/'
-
     ],
     'Three Dog Bakery': ['https://williamsonsource.com/tag/three-dog-bakery/'],
     'Warren Bradley Partners': [
         'https://williamsonsource.com/tag/warren-bradley-partners/',
         'https://williamsonsource.com/tag/warren-bradley/',
-        'https://williamsonsource.com/tag/relocating-to-williamson-county/'
     ],
     'Westhaven Golf': ['https://williamsonsource.com/tag/westhaven-golf-club/'],
     'Williamson Medical Center': [
@@ -172,6 +167,10 @@ SPONSOR_URLS = {
     'Peek Pools & Spas': {
         'url': 'https://williamsonsource.com/kids-and-family/',
         'title': "Kids & Family - Williamson Source"
+    },
+    'Susan Gregory': {
+        'url': 'https://williamsonsource.com/real-estate/',
+        'title': 'Williamson County Real Estate'
     },
     'Warren Bradley Partners': {
         'url': 'https://williamsonsource.com/relocating-to-williamson-county/',

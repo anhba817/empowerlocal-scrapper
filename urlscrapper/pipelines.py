@@ -13,23 +13,18 @@ import json
 
 import sys 
 import os
-sys.path.append(os.getcwd())
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 from items import UrlscrapperItem
 from exporters import MyCsvItemExporter
 
 class CsvExportPipeline:
-    def __init__(self, sponsor_urls):
-        self.sponsor_urls = sponsor_urls
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(
-            sponsor_urls=crawler.settings.get('SPONSOR_URLS')
-        )
-
     def open_spider(self, spider):
         customer = getattr(spider, 'customer', None)
         self.customer = customer
+        sponsor_urls = getattr(spider, 'sponsor_urls', '')
+        self.sponsor_urls = list(filter(len, sponsor_urls.split("\n")))
+        sponsor_titles = getattr(spider, 'sponsor_titles', '')
+        self.sponsor_titles = list(filter(len, sponsor_titles.split("\n")))
         out_file = getattr(spider, 'output', None)
         print_header = getattr(spider, 'print_header', "True")
         print_header = print_header == "True"
@@ -40,14 +35,15 @@ class CsvExportPipeline:
             include_headers_line=print_header
         )
         self.exporter.start_exporting()
-        if customer is not None and customer in self.sponsor_urls:
-            item = UrlscrapperItem(
-                client=customer,
-                article=self.sponsor_urls[customer]['url'].split('/')[-2],
-                date=datetime.now().strftime("%m/%d/%Y"),
-                title=self.sponsor_urls[customer]['title']
-            )
-            self.exporter.export_item(item)
+        if customer is not None and self.sponsor_urls:
+            for index, sponsor_url in enumerate(self.sponsor_urls):
+                item = UrlscrapperItem(
+                    client=customer,
+                    article=sponsor_url.split('/')[-2],
+                    date=datetime.now().strftime("%m/%d/%Y"),
+                    title=self.sponsor_titles[index]
+                )
+                self.exporter.export_item(item)
 
     def close_spider(self, spider):
         self.exporter.finish_exporting()
@@ -57,32 +53,32 @@ class CsvExportPipeline:
         self.exporter.export_item(item)
         return item
 
-class UrlscrapperPipeline:
-    def __init__(self, sponsor_urls):
-        self.sponsor_urls = sponsor_urls
+# class UrlscrapperPipeline:
+#     def __init__(self, sponsor_urls):
+#         self.sponsor_urls = sponsor_urls
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(
-            sponsor_urls=crawler.settings.get('SPONSOR_URLS')
-        )
+#     @classmethod
+#     def from_crawler(cls, crawler):
+#         return cls(
+#             sponsor_urls=crawler.settings.get('SPONSOR_URLS')
+#         )
 
-    def open_spider(self, spider):
-        customer = getattr(spider, 'customer', None)
-        self.customer = customer
-        out_file = getattr(spider, 'output', None)
-        self.file = open(out_file, 'a')
-        if customer is not None and customer in self.sponsor_urls:
-            self.file.write("%s\t%s\n" % (customer, self.sponsor_urls[customer]))
+#     def open_spider(self, spider):
+#         customer = getattr(spider, 'customer', None)
+#         self.customer = customer
+#         out_file = getattr(spider, 'output', None)
+#         self.file = open(out_file, 'a')
+#         if customer is not None and customer in self.sponsor_urls:
+#             self.file.write("%s\t%s\n" % (customer, self.sponsor_urls[customer]))
 
-    def close_spider(self, spider):
-        self.file.close()
+#     def close_spider(self, spider):
+#         self.file.close()
 
-    def process_item(self, item, spider):
-        adapter = ItemAdapter(item)
-        line = "%s\t%s\t%s\n" % (self.customer, adapter['article'], adapter['date'].split('T')[0])
-        self.file.write(line)
-        return item
+#     def process_item(self, item, spider):
+#         adapter = ItemAdapter(item)
+#         line = "%s\t%s\t%s\n" % (self.customer, adapter['article'], adapter['date'].split('T')[0])
+#         self.file.write(line)
+#         return item
 
 
 class DuplicatesPipeline:
