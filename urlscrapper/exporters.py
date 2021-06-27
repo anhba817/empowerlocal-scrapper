@@ -2,6 +2,7 @@ from scrapy.exporters import CsvItemExporter
 
 class MyCsvItemExporter(CsvItemExporter):
     header_map = {
+        'source': 'Source',
         'client': 'Client',
         'article': 'Page',
         'date': 'Date of Publish',

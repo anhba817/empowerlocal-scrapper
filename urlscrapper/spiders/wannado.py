@@ -3,6 +3,9 @@ import dateutil.parser
 
 class WannadoSpider(scrapy.Spider):
     name = 'Wannado'
+    custom_settings = {
+        'RETRY_TIMES': 10,
+    }
     PAGE_MAX = 4
 
     def start_requests(self):
@@ -34,6 +37,7 @@ class WannadoSpider(scrapy.Spider):
     
     def parse_article(self, response, article, date):
         yield {
+            'source': 'Wannado',
             'client': self.customer,
             'article': article,
             'date': date,

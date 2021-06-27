@@ -3,6 +3,10 @@ import dateutil.parser
 
 class WilliamsonSourceSpider(scrapy.Spider):
     name = 'WilliamsonSource'
+    download_delay = 1.0
+    custom_settings = {
+        'RETRY_TIMES': 10,
+    }
     PAGE_MAX = 4
 
     def start_requests(self):
@@ -34,6 +38,7 @@ class WilliamsonSourceSpider(scrapy.Spider):
     
     def parse_article(self, response, article, date):
         yield {
+            'source': 'WilliamsonSource',
             'client': self.customer,
             'article': article,
             'date': date,

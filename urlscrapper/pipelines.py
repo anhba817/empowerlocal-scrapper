@@ -31,13 +31,14 @@ class CsvExportPipeline:
         self.csv_file = open(out_file, 'wb')
         self.exporter = MyCsvItemExporter(
             self.csv_file,
-            fields_to_export=["client", "article", "date", "title"],
+            fields_to_export=["source", "client", "article", "date", "title"],
             include_headers_line=print_header
         )
         self.exporter.start_exporting()
         if customer is not None and self.sponsor_urls:
             for index, sponsor_url in enumerate(self.sponsor_urls):
                 item = UrlscrapperItem(
+                    source=spider.name,
                     client=customer,
                     article=sponsor_url.split('/')[-2],
                     date=datetime.now().strftime("%m/%d/%Y"),
