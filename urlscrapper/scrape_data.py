@@ -8,7 +8,14 @@ from scrapy.utils.project import get_project_settings
 WEB_SPIDERS = {
     'WS': 'WilliamsonSource',
     'RS': 'RutherfordSource',
-    'Wannado': 'Wannado'
+    'Wannado': 'Wannado',
+    'WilsonCounty': 'WilsonCountySource',
+    'SumnerCounty': 'SumnerCountySource',
+    'RobertsonCounty': 'RobertsonCountySource',
+    'CheathamCounty': 'CheathamCountySource',
+    'MauryCounty': 'MauryCountySource',
+    'DicksonCounty': 'DicksonCountySource',
+    'DavidsonCounty': 'DavidsonCountySource'
 }
 
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
