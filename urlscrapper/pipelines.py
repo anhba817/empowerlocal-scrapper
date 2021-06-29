@@ -11,7 +11,7 @@ from datetime import datetime
 import calendar
 import json
 
-import sys 
+import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 from items import UrlscrapperItem
@@ -100,9 +100,13 @@ class FilterDatePipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         month = getattr(spider, 'month', None)
+
         if month is not None:
+            year = getattr(spider, 'year', None)
+            if year is None:
+                year = datetime.today().year
             month = int(month)
-            year = datetime.today().year
+            year = int(year)
             last_date_of_month = calendar.monthrange(year, month)[1]
             from_date = datetime(year, month, 1)
             to_date = datetime(year, month, last_date_of_month)

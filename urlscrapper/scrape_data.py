@@ -1,6 +1,7 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
+import datetime
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -33,6 +34,10 @@ if os.path.exists("results.csv"):
     f = open("results.csv", 'w')
     f.write("Source,Client,Page,Date of Publish,Page Title\n")
     f.close()
+today = datetime.datetime.today()
+month = today.month - 1 if today.month != 1 else 12
+year = today.year if today.month != 1 else today.year - 1
+
 
 file_list = []
 process = CrawlerProcess(get_project_settings())
@@ -52,7 +57,8 @@ for worksheet in sh.worksheets():
             file_list.append(out_file)
             process.crawl(WEB_SPIDERS[worksheet.title], customer=row['Customer'],
                 urls=row['Tag URLs'], sponsor_urls=row["Sponsorship URL"],
-                sponsor_titles=row['Sponsorship Page Title'], month=5, output=out_file, print_header="False")
+                sponsor_titles=row['Sponsorship Page Title'], month=month,
+                year=year, output=out_file, print_header="False")
 
 print("##################################")
 print("START CRAWLING DATA...")
