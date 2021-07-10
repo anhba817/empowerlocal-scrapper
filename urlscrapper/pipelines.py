@@ -25,7 +25,7 @@ class CsvExportPipeline:
         self.sponsor_urls = list(filter(len, sponsor_urls.split("\n")))
         sponsor_titles = getattr(spider, 'sponsor_titles', '')
         self.sponsor_titles = list(filter(len, sponsor_titles.split("\n")))
-        out_file = getattr(spider, 'output', None)
+        out_file = getattr(spider, 'output', "%s_%s.csv" % (spider.name, customer))
         print_header = getattr(spider, 'print_header', "True")
         print_header = print_header == "True"
         self.csv_file = open(out_file, 'wb')
