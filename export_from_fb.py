@@ -14,7 +14,8 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 WEB_SPIDERS = {
-    'WS': { 'name': 'WilliamsonSource', 'url': 'https://williamsonsource.com/', 'page_id': '230344097046602', 'class_name': 'td-post-source-tags'}
+    'WS': { 'name': 'WilliamsonSource', 'url': 'https://williamsonsource.com/', 'page_id': '230344097046602', 'class_name': 'td-post-source-tags'},
+    'RS': { 'name': 'RutherfordSource', 'url': 'https://rutherfordsource.com/', 'page_id': '1705856782982239', 'class_name': 'td-post-source-tags'}
 }
 
 headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36'}
