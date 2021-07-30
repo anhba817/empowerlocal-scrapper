@@ -6,6 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timezone
 import argparse
 import os, sys, calendar, csv
+import json
 
 URLS = {
     'WilliamsonSource': 'https://williamsonsource.com/',
@@ -46,12 +47,16 @@ worksheet = sh.get_worksheet(0)
 list_of_dicts = worksheet.get_all_records()
 
 # Get all mailchimp campaigns in the month
+f = open('mailchimp_secret.json', 'r')
+mailchimp_auth = json.load(f)
+f.close()
 ws_rs_campaigns = []
+
 try:
     ws_rs_client = MailchimpMarketing.Client()
     ws_rs_client.set_config({
-      "api_key": "f08427aa56aca85c4ebfbcee4e28b3ea-us5",
-      "server": "us5"
+      "api_key": mailchimp_auth['ws_rs']['api_key'],
+      "server": mailchimp_auth['ws_rs']['server']
     })
 
     response = ws_rs_client.campaigns.list(count=1000,
@@ -69,8 +74,8 @@ wannado_campaigns = []
 try:
     wannado_client = MailchimpMarketing.Client()
     wannado_client.set_config({
-      "api_key": "bbdf9344ecceabc730a8227a66544942-us3",
-      "server": "us3"
+      "api_key": mailchimp_auth['wannado']['api_key'],
+      "server": mailchimp_auth['wannado']['server']
     })
 
     response = wannado_client.campaigns.list(count=1000,
@@ -126,7 +131,7 @@ with open('mailchimp_results.csv', 'r') as file_obj:
     gsclient.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
 
 print("SCRAPPING DONE")
-print("ARTICLES NOT INCLUDES In ANY NEWSLETTER:")
+print("ARTICLES NOT INCLUDED IN ANY NEWSLETTER:")
 for post in not_found:
     print(post)
 
