@@ -1,7 +1,8 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import os
+import os, sys
 import datetime
+import argparse
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -34,10 +35,22 @@ if os.path.exists("results.csv"):
     f = open("results.csv", 'w')
     f.write("Source,Client,Page,Date of Publish,Page Title\n")
     f.close()
-today = datetime.datetime.today()
-month = today.month - 1 if today.month != 1 else 12
-year = today.year if today.month != 1 else today.year - 1
 
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Wrapper script to scrap data using scrapy.')
+    parser.add_argument("-m", "--month", help="Month to scrap")
+    parser.add_argument("-y", "--year", help="Year to scrap")
+    return parser.parse_args(args)
+
+arguments = parse_args(sys.argv[1:])
+
+month = arguments.month
+year = arguments.year
+today = datetime.datetime.today()
+if not month:
+    month = today.month - 1 if today.month != 1 else 12
+if not year:
+    year = today.year if today.month != 1 else today.year - 1
 
 file_list = []
 process = CrawlerProcess(get_project_settings())
