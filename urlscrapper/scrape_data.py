@@ -7,6 +7,8 @@ import argparse
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
+FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+
 WEB_SPIDERS = {
     'WS': 'WilliamsonSource',
     'RS': 'RutherfordSource',
@@ -23,16 +25,16 @@ WEB_SPIDERS = {
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secret_2.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../google_sheet_secret.json', scope)
 client = gspread.authorize(credentials)
 
 # client = gspread.oauth()
 
 sh = client.open_by_key('1_W47KYXgO4XNj5QpcCkPNdJwUzl4tgy6tlwYkjIMepI')
 
-if os.path.exists("results.csv"):
-    os.remove("results.csv")
-    f = open("results.csv", 'w')
+if os.path.exists("web_article_results.csv"):
+    os.remove("web_article_results.csv")
+    f = open("web_article_results.csv", 'w')
     f.write("Source,Client,Page,Date of Publish,Page Title\n")
     f.close()
 
@@ -77,7 +79,7 @@ print("##################################")
 print("START CRAWLING DATA...")
 process.start()
 print("PROCESSING SCRAPED DATA...")
-final_result = open("results.csv", 'a+')
+final_result = open("web_article_results.csv", 'a+')
 for myF in file_list:
     myFile = open(myF, 'r')
     final_result.write(myFile.read())
@@ -88,7 +90,7 @@ final_result.close()
 print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 spreadsheet = client.open_by_key('1CqlVVAtsWCf5YhG3wIz5IDmfey0s6zEMJrg4768VpyY')
 
-with open('results.csv', 'r') as file_obj:
+with open('web_article_results.csv', 'r') as file_obj:
     content = file_obj.read()
     client.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
 print("FINISHED")

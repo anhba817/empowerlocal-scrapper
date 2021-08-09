@@ -1,5 +1,7 @@
 *.pyc
 **/default_None.csv
 **/facebook.json
-**/results.csv
+**/*results.csv
+**/*result.csv
+**/*secret.json
 

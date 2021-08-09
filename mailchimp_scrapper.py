@@ -3,10 +3,13 @@ from mailchimp_marketing.api_client import ApiClientError
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
 from datetime import datetime, timezone
 import argparse
 import os, sys, calendar, csv
 import json
+
+FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 URLS = {
     'WilliamsonSource': 'https://williamsonsource.com/',
@@ -37,7 +40,7 @@ stopDate = datetime(year, month, last_day_in_month, 23, 59, 59, tzinfo=timezone.
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name('urlscrapper/client_secret_2.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/google_sheet_secret.json', scope)
 gsclient = gspread.authorize(credentials)
 
 # client = gspread.oauth()
@@ -47,7 +50,7 @@ worksheet = sh.get_worksheet(0)
 list_of_dicts = worksheet.get_all_records()
 
 # Get all mailchimp campaigns in the month
-f = open('mailchimp_secret.json', 'r')
+f = open(FILE_DIRECTORY + '/mailchimp_secret.json', 'r')
 mailchimp_auth = json.load(f)
 f.close()
 ws_rs_campaigns = []
@@ -66,28 +69,28 @@ try:
     ws_rs_campaigns = response['campaigns']
     print("GETTING WS/RS CAMPAIGNS INFO FROM MAILCHIMP...")
     for campaign in ws_rs_campaigns:
-        campaign['content'] = ws_rs_client.campaigns.get_content(campaign['id'], fields=['plain_text'])
+        campaign['content'] = ws_rs_client.campaigns.get_content(campaign['id'], fields=['html'])
 except ApiClientError as error:
     print("Error: {}".format(error.text))
 
 wannado_campaigns = []
-try:
-    wannado_client = MailchimpMarketing.Client()
-    wannado_client.set_config({
-      "api_key": mailchimp_auth['wannado']['api_key'],
-      "server": mailchimp_auth['wannado']['server']
-    })
+# try:
+#     wannado_client = MailchimpMarketing.Client()
+#     wannado_client.set_config({
+#       "api_key": mailchimp_auth['wannado']['api_key'],
+#       "server": mailchimp_auth['wannado']['server']
+#     })
 
-    response = wannado_client.campaigns.list(count=1000,
-      since_send_time=startDate.isoformat(),
-      before_send_time=stopDate.isoformat()
-    )
-    wannado_campaigns = response['campaigns']
-    print("GETTING WANNDDO CAMPAIGNS INFO FROM MAILCHIMP...")
-    for campaign in wannado_campaigns:
-        campaign['content'] = wannado_client.campaigns.get_content(campaign['id'], fields=['plain_text'])
-except ApiClientError as error:
-    print("Error: {}".format(error.text))
+#     response = wannado_client.campaigns.list(count=1000,
+#       since_send_time=startDate.isoformat(),
+#       before_send_time=stopDate.isoformat()
+#     )
+#     wannado_campaigns = response['campaigns']
+#     print("GETTING WANNDDO CAMPAIGNS INFO FROM MAILCHIMP...")
+#     for campaign in wannado_campaigns:
+#         campaign['content'] = wannado_client.campaigns.get_content(campaign['id'], fields=['html'])
+# except ApiClientError as error:
+#     print("Error: {}".format(error.text))
 
 
 not_found = []
@@ -103,12 +106,12 @@ with open('mailchimp_results.csv', 'w') as csvFile:
         campaign_title = ''
         if article['Source'] == "Wannado":
             for campaign in wannado_campaigns:
-                if url_to_search in campaign['content']['plain_text']:
+                if url_to_search in campaign['content']['html']:
                     campaign_id = campaign['id']
                     campaign_title = campaign['settings']['title']
         else:
             for campaign in ws_rs_campaigns:
-                if url_to_search in campaign['content']['plain_text']:
+                if url_to_search in campaign['content']['html']:
                     campaign_id = campaign['id']
                     campaign_title = campaign['settings']['title']
 

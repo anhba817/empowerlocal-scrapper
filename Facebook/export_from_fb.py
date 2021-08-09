@@ -21,14 +21,18 @@ year = today.year if today.month != 1 else today.year - 1
 
 last_day_in_month = calendar.monthrange(year, month)[1]
 
-auth_data = json.load(open('facebook.json', 'r'))
+f = open(FILE_DIRECTORY + '/facebook.json', 'r')
+auth_data = json.load(f)
+f.close()
+
 graph = facebook.GraphAPI(access_token=auth_data['page']['token'], version=auth_data['sdk_version'])
 
+FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 ###### Get customer info from Google Sheet #######
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name('urlscrapper/client_secret_2.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../google_sheet_secret.json', scope)
 client = gspread.authorize(credentials)
 sh = client.open_by_key('1lNZksC-_80JWt1MYvFmbYNbyUC2zmhPrTphHMDFpKzM')
 facebook_page_info = sh.get_worksheet(0).get_all_records()
@@ -97,7 +101,7 @@ def process_queue(q):
             time.sleep(0.01)
             continue
         global_lock.acquire()
-        f = open('results.csv', 'a+')
+        f = open('fb_post_results.csv', 'a+')
         writer = csv.writer(f)
         writer.writerow([page_info["Name"], customer, post_message, created_time, total_reach, total_impressions,engaged_users, clicks])
         f.close()
@@ -105,7 +109,7 @@ def process_queue(q):
         time.sleep(0.5)
         q.task_done()
 
-myFile = open('results.csv', 'w')
+myFile = open('fb_post_results.csv', 'w')
 csvWriter = csv.writer(myFile)
 csvWriter.writerow(["Source", "Customer", "Post Message", "Posted", "Total Reach", "Total Impressions","Engaged Users", "Clicks"])
 myFile.close()
@@ -141,7 +145,7 @@ for worksheet in sh2.worksheets():
 print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 spreadsheet = client.open_by_key('1uOFJHbns2ftrMuBm0l4BFHRHdKwYlETK1Jw_IfNhxAs')
 
-with open('results.csv', 'r') as file_obj:
+with open('fb_post_results.csv', 'r') as file_obj:
     content = file_obj.read()
     client.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
 
