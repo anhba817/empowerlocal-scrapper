@@ -58,7 +58,7 @@ while "next" in resp.json()["paging"]:
     resp = requests.get(url=next_url)
     data += (resp.json()["data"])
 
-with open('fb_ads_results.csv', 'w') as csvFile:
+with open(FILE_DIRECTORY + '/fb_ads_results.csv', 'w') as csvFile:
     writer = csv.writer(csvFile)
     writer.writerow(["Campaign Name", "Ad Set Name", "Ad Name", "Day", "Reach",
         "Impressions", "Post Engagement", "Clicks (All)", "CPC (All)", "CTR (All)",
@@ -88,8 +88,11 @@ gsclient = gspread.authorize(credentials)
 
 spreadsheet = gsclient.open_by_key('1MrROsQfUARGrRqmjD_kbhPokw3nB8tw-eQmC4iNu2ms')
 
-with open('fb_ads_results.csv', 'r') as file_obj:
-    content = file_obj.read()
-    gsclient.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
+worksheet = spreadsheet.get_worksheet(0)
+worksheet.resize(1)
+with open(FILE_DIRECTORY + '/fb_ads_results.csv', 'r', encoding='utf-8') as file_obj:
+    csv_reader = csv.reader(file_obj, delimiter=',')
+    all_rows = list(csv_reader)
+    worksheet.append_rows(all_rows[1:])
 
 print("DONE")

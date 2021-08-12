@@ -94,7 +94,7 @@ wannado_campaigns = []
 
 
 not_found = []
-with open('mailchimp_results.csv', 'w') as csvFile:
+with open(FILE_DIRECTORY + '/mailchimp_results.csv', 'w') as csvFile:
     writer = csv.writer(csvFile)
     writer.writerow(["Source", "Client", "Page", "Date of Publish", "Page Title", "Campaigns ID", "Campaigns Title"])
 
@@ -129,9 +129,12 @@ with open('mailchimp_results.csv', 'w') as csvFile:
 print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 spreadsheet = gsclient.open_by_key('19On7_SSqJPhlmY3ZHjYmZ0Jvc0Gh_NoavWq9uZeUTio')
 
-with open('mailchimp_results.csv', 'r') as file_obj:
-    content = file_obj.read()
-    gsclient.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
+worksheet = spreadsheet.get_worksheet(0)
+worksheet.resize(1)
+with open(FILE_DIRECTORY + '/mailchimp_results.csv', 'r', encoding='utf-8') as file_obj:
+    csv_reader = csv.reader(file_obj, delimiter=',')
+    all_rows = list(csv_reader)
+    worksheet.append_rows(all_rows[1:])
 
 print("SCRAPPING DONE")
 print("ARTICLES NOT INCLUDED IN ANY NEWSLETTER:")

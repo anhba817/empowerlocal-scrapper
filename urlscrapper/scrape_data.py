@@ -32,10 +32,7 @@ client = gspread.authorize(credentials)
 
 sh = client.open_by_key('1_W47KYXgO4XNj5QpcCkPNdJwUzl4tgy6tlwYkjIMepI')
 
-if os.path.exists("web_article_results.csv"):
-    os.remove("web_article_results.csv")
-
-f = open("web_article_results.csv", 'w')
+f = open(FILE_DIRECTORY + "/web_article_results.csv", 'w')
 f.write("Source,Client,Page,Date of Publish,Page Title\n")
 f.close()
 
@@ -80,7 +77,7 @@ print("##################################")
 print("START CRAWLING DATA...")
 process.start()
 print("PROCESSING SCRAPED DATA...")
-final_result = open("web_article_results.csv", 'a+')
+final_result = open(FILE_DIRECTORY+ "/web_article_results.csv", 'a+')
 for myF in file_list:
     myFile = open(myF, 'r')
     final_result.write(myFile.read())
@@ -91,7 +88,11 @@ final_result.close()
 print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 spreadsheet = client.open_by_key('1CqlVVAtsWCf5YhG3wIz5IDmfey0s6zEMJrg4768VpyY')
 
-with open('web_article_results.csv', 'r') as file_obj:
-    content = file_obj.read()
-    client.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
+worksheet = spreadsheet.get_worksheet(0)
+worksheet.resize(1)
+with open(FILE_DIRECTORY + '/web_article_results.csv', 'r', encoding='utf-8') as file_obj:
+    csv_reader = csv.reader(file_obj, delimiter=',')
+    all_rows = list(csv_reader)
+    worksheet.append_rows(all_rows[1:])
+
 print("FINISHED")

@@ -89,9 +89,12 @@ def main(authorization_data):
 
         # UPLOAD TO GOOGLE SHEET
         spreadsheet = gsclient.open_by_key('1ZFFq-t267vXIxivxK0KTTlOj9p_-ynS6W4zaOidg9U8')
-        with open(RESULT_FILE_NAME, 'r') as file_obj:
-            content = file_obj.read()
-            gsclient.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
+        worksheet = spreadsheet.get_worksheet(0)
+        worksheet.resize(1)
+        with open(RESULT_FILE_NAME, 'r', encoding='utf-8') as file_obj:
+            csv_reader = csv.reader(file_obj, delimiter=',')
+            all_rows = list(csv_reader)
+            worksheet.append_rows(all_rows[1:])
 
     except WebFault as ex:
         output_webfault_errors(ex)

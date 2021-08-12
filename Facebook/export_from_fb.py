@@ -44,34 +44,39 @@ global_lock = threading.Lock()
 
 def process_queue(q):
     while not q.empty():
-        page_info, post, index = q.get()
-        print("    Processing post %s: %s" % (index, post['message']))
-        created_time = parse(post["created_time"]).strftime('%m/%d/%Y %I:%M:%S %p')
-        data = graph.get_connections(
-            id=post["id"],
-            connection_name="insights",
-            metric="post_impressions_unique,post_impressions,post_engaged_users,post_clicks",
-            period="lifetime",
-            show_description_from_api_doc=True,
-        )["data"]
-        total_reach = 0
-        total_impressions = 0
-        engaged_users = 0
-        clicks = 0
-        for info in data:
-            if info["name"] == "post_clicks":
-                clicks = info["values"][0]["value"]
-            elif info["name"] == "post_impressions_unique":
-                total_reach = info["values"][0]["value"]
-            elif info["name"] == "post_impressions":
-                total_impressions = info["values"][0]["value"]
-            elif info["name"] == "post_engaged_users":
-                engaged_users = info["values"][0]["value"]
+        try:
+            page_info, post, index = q.get()
+            if 'message' in post:
+                print("    Processing post %s: %s" % (index, post['message']))
             else:
-                print("########## ERROR: Unknown metric in response ###############")
-        post_message = ''
-        customer = ''
-        if "message" in post:
+                print("    Post %s does not include a message, skip!" % post)
+                q.task_done()
+                continue
+            created_time = parse(post["created_time"]).strftime('%m/%d/%Y %I:%M:%S %p')
+            data = graph.get_connections(
+                id=post["id"],
+                connection_name="insights",
+                metric="post_impressions_unique,post_impressions,post_engaged_users,post_clicks",
+                period="lifetime",
+                show_description_from_api_doc=True,
+            )["data"]
+            total_reach = 0
+            total_impressions = 0
+            engaged_users = 0
+            clicks = 0
+            for info in data:
+                if info["name"] == "post_clicks":
+                    clicks = info["values"][0]["value"]
+                elif info["name"] == "post_impressions_unique":
+                    total_reach = info["values"][0]["value"]
+                elif info["name"] == "post_impressions":
+                    total_impressions = info["values"][0]["value"]
+                elif info["name"] == "post_engaged_users":
+                    engaged_users = info["values"][0]["value"]
+                else:
+                    print("########## ERROR: Unknown metric in response ###############")
+            post_message = ''
+            customer = ''
             post_message = re.sub('[\n\t]', '', post['message'])
             search = re.search("(?P<url>https?://[^\s]+)", post_message)
             if search:
@@ -97,19 +102,23 @@ def process_queue(q):
                                 if info:
                                     customer = info["Customer"]
                                     break
+        except:
+            print("    Error happen when processing post %s" % post['message'])
+            q.task_done()
+            continue
+
         while global_lock.locked():
             time.sleep(0.05)
             continue
         global_lock.acquire()
-        f = open('fb_post_results.csv', 'a+')
+        f = open(FILE_DIRECTORY + '/fb_post_results.csv', 'a+')
         writer = csv.writer(f)
         writer.writerow([page_info["Name"], customer, post_message, created_time, total_reach, total_impressions,engaged_users, clicks])
         f.close()
         global_lock.release()
-        time.sleep(0.5)
         q.task_done()
 
-myFile = open('fb_post_results.csv', 'w')
+myFile = open(FILE_DIRECTORY + '/fb_post_results.csv', 'w')
 csvWriter = csv.writer(myFile)
 csvWriter.writerow(["Source", "Customer", "Post Message", "Posted", "Total Reach", "Total Impressions","Engaged Users", "Clicks"])
 myFile.close()
@@ -145,8 +154,11 @@ for worksheet in sh2.worksheets():
 print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 spreadsheet = client.open_by_key('1uOFJHbns2ftrMuBm0l4BFHRHdKwYlETK1Jw_IfNhxAs')
 
-with open('fb_post_results.csv', 'r') as file_obj:
-    content = file_obj.read()
-    client.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
+worksheet = spreadsheet.get_worksheet(0)
+worksheet.resize(1)
+with open(FILE_DIRECTORY + '/fb_post_results.csv', 'r', encoding='utf-8') as file_obj:
+    csv_reader = csv.reader(file_obj, delimiter=',')
+    all_rows = list(csv_reader)
+    worksheet.append_rows(all_rows[1:])
 
 print("######### DONE ###########")
