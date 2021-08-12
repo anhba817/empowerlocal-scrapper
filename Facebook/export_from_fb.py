@@ -21,13 +21,13 @@ year = today.year if today.month != 1 else today.year - 1
 
 last_day_in_month = calendar.monthrange(year, month)[1]
 
+FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 f = open(FILE_DIRECTORY + '/facebook.json', 'r')
 auth_data = json.load(f)
 f.close()
 
 graph = facebook.GraphAPI(access_token=auth_data['page']['token'], version=auth_data['sdk_version'])
 
-FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 ###### Get customer info from Google Sheet #######
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
@@ -98,7 +98,7 @@ def process_queue(q):
                                     customer = info["Customer"]
                                     break
         while global_lock.locked():
-            time.sleep(0.01)
+            time.sleep(0.05)
             continue
         global_lock.acquire()
         f = open('fb_post_results.csv', 'a+')

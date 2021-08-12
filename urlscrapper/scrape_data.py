@@ -34,9 +34,10 @@ sh = client.open_by_key('1_W47KYXgO4XNj5QpcCkPNdJwUzl4tgy6tlwYkjIMepI')
 
 if os.path.exists("web_article_results.csv"):
     os.remove("web_article_results.csv")
-    f = open("web_article_results.csv", 'w')
-    f.write("Source,Client,Page,Date of Publish,Page Title\n")
-    f.close()
+
+f = open("web_article_results.csv", 'w')
+f.write("Source,Client,Page,Date of Publish,Page Title\n")
+f.close()
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description='Wrapper script to scrap data using scrapy.')

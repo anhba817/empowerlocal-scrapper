@@ -20,7 +20,7 @@ REPORT_FILE_FORMAT='Csv'
 FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 # The name of the report download file.
-RESULT_FILE_NAME='result.' + REPORT_FILE_FORMAT.lower()
+RESULT_FILE_NAME= FILE_DIRECTORY + '/result.' + REPORT_FILE_FORMAT.lower()
 
 # The maximum amount of time (in milliseconds) that you want to wait for the report download.
 TIMEOUT_IN_MILLISECONDS=3600000
@@ -89,7 +89,7 @@ def main(authorization_data):
 
         # UPLOAD TO GOOGLE SHEET
         spreadsheet = gsclient.open_by_key('1ZFFq-t267vXIxivxK0KTTlOj9p_-ynS6W4zaOidg9U8')
-        with open('result.csv', 'r') as file_obj:
+        with open(RESULT_FILE_NAME, 'r') as file_obj:
             content = file_obj.read()
             gsclient.import_csv(spreadsheet.id, data=content.encode(encoding='utf-8'))
 
