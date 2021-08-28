@@ -29,7 +29,7 @@ TIMEOUT_IN_MILLISECONDS=3600000
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../google_sheet_secret.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../credentials/google_sheet_secret.json', scope)
 gsclient = gspread.authorize(credentials)
 
 def parse_args(args):

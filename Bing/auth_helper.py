@@ -24,7 +24,7 @@ ALL_AD_TYPES={
 }
 
 FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-f = open(FILE_DIRECTORY + '/bing_ads_secret.json', 'r')
+f = open(FILE_DIRECTORY + '/../credentials/bing_ads_secret.json', 'r')
 bing_auth = json.load(f)
 f.close()
 

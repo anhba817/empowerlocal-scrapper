@@ -32,7 +32,7 @@ stopDate = datetime(year, month, last_day_in_month, 23, 59, 59)
 since_date = startDate.strftime("%Y-%m-%d")
 until_date = stopDate.strftime("%Y-%m-%d")
 
-f = open(FILE_DIRECTORY + '/facebook.json', 'r')
+f = open(FILE_DIRECTORY + '/../credentials/facebook.json', 'r')
 facebook_auth = json.load(f)
 f.close()
 
@@ -83,7 +83,7 @@ print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../google_sheet_secret.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../credentials/google_sheet_secret.json', scope)
 gsclient = gspread.authorize(credentials)
 
 spreadsheet = gsclient.open_by_key('1MrROsQfUARGrRqmjD_kbhPokw3nB8tw-eQmC4iNu2ms')

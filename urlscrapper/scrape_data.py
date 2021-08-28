@@ -1,6 +1,6 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import os, sys
+import os, sys, csv
 import datetime
 import argparse
 
@@ -25,7 +25,7 @@ WEB_SPIDERS = {
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../google_sheet_secret.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../credentials/google_sheet_secret.json', scope)
 client = gspread.authorize(credentials)
 
 # client = gspread.oauth()

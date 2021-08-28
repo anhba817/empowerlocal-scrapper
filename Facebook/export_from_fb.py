@@ -22,7 +22,7 @@ year = today.year if today.month != 1 else today.year - 1
 last_day_in_month = calendar.monthrange(year, month)[1]
 
 FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-f = open(FILE_DIRECTORY + '/facebook.json', 'r')
+f = open(FILE_DIRECTORY + '/../credentials/facebook.json', 'r')
 auth_data = json.load(f)
 f.close()
 
@@ -32,7 +32,7 @@ graph = facebook.GraphAPI(access_token=auth_data['page']['token'], version=auth_
 scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../google_sheet_secret.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(FILE_DIRECTORY + '/../credentials/google_sheet_secret.json', scope)
 client = gspread.authorize(credentials)
 sh = client.open_by_key('1lNZksC-_80JWt1MYvFmbYNbyUC2zmhPrTphHMDFpKzM')
 facebook_page_info = sh.get_worksheet(0).get_all_records()
