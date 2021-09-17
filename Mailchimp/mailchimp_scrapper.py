@@ -47,7 +47,7 @@ scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/au
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
 
 credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    FILE_DIRECTORY + 'credentials/google_sheet_secret.json', scope)
+    FILE_DIRECTORY + '/../credentials/google_sheet_secret.json', scope)
 gsclient = gspread.authorize(credentials)
 
 # client = gspread.oauth()
@@ -57,7 +57,7 @@ worksheet = sh.get_worksheet(0)
 list_of_dicts = worksheet.get_all_records()
 
 # Get all mailchimp campaigns in the month
-f = open(FILE_DIRECTORY + '/credentials/mailchimp_secret.json', 'r')
+f = open(FILE_DIRECTORY + '/../credentials/mailchimp_secret.json', 'r')
 mailchimp_auth = json.load(f)
 f.close()
 ws_rs_campaigns_reports = []

@@ -3,6 +3,7 @@ import json, csv
 from datetime import datetime
 from dateutil.parser import parse
 import re, os
+import sys, argparse
 
 import facebook
 
@@ -15,9 +16,21 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 headers = {'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36'}
 
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Scrap data from mailchimp.')
+    parser.add_argument("-m", "--month", type=int, help="Month")
+    parser.add_argument("-y", "--year", type=int, help="Year")
+    return parser.parse_args(args)
+
+arguments = parse_args(sys.argv[1:])
+
+month = arguments.month
+year = arguments.year
 today = datetime.today()
-month = today.month - 1 if today.month != 1 else 12
-year = today.year if today.month != 1 else today.year - 1
+if not month:
+    month = today.month - 1 if today.month != 1 else 12
+if not year:
+    year = today.year if today.month != 1 else today.year - 1
 
 last_day_in_month = calendar.monthrange(year, month)[1]
 
