@@ -90,7 +90,7 @@ def main(authorization_data):
         # UPLOAD TO GOOGLE SHEET
         spreadsheet = gsclient.open_by_key('1ZFFq-t267vXIxivxK0KTTlOj9p_-ynS6W4zaOidg9U8')
         worksheet = spreadsheet.get_worksheet(0)
-        worksheet.resize(1)
+        # worksheet.resize(1)
         with open(RESULT_FILE_NAME, 'r', encoding='utf-8') as file_obj:
             csv_reader = csv.reader(file_obj, delimiter=',')
             all_rows = list(csv_reader)

@@ -37,7 +37,7 @@ facebook_auth = json.load(f)
 f.close()
 
 print("EXPORTING DATA FROM FACEBOOK ADS...")
-url = "https://graph.facebook.com/v11.0/act_%s/insights" % (facebook_auth["ad_account"])
+url = "https://graph.facebook.com/v%s/act_%s/insights" % (facebook_auth["graph_api_version"], facebook_auth["ad_account"])
 
 params = dict(
     level="ad",
@@ -89,7 +89,7 @@ gsclient = gspread.authorize(credentials)
 spreadsheet = gsclient.open_by_key('1MrROsQfUARGrRqmjD_kbhPokw3nB8tw-eQmC4iNu2ms')
 
 worksheet = spreadsheet.get_worksheet(0)
-worksheet.resize(1)
+# worksheet.resize(1)
 with open(FILE_DIRECTORY + '/fb_ads_results.csv', 'r', encoding='utf-8') as file_obj:
     csv_reader = csv.reader(file_obj, delimiter=',')
     all_rows = list(csv_reader)

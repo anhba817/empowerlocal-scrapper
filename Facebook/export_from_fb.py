@@ -1,6 +1,6 @@
 import calendar, time
 import json, csv
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil.parser import parse
 import re, os
 import sys, argparse
@@ -115,8 +115,9 @@ def process_queue(q):
                                 if info:
                                     customer = info["Customer"]
                                     break
-        except:
+        except Exception as e:
             print("    Error happen when processing post %s" % post['message'])
+            print(e)
             q.task_done()
             continue
 
@@ -129,6 +130,7 @@ def process_queue(q):
         writer.writerow([page_info["Name"], customer, post_message, created_time, total_reach, total_impressions,engaged_users, clicks])
         f.close()
         global_lock.release()
+        time.sleep(1)
         q.task_done()
 
 myFile = open(FILE_DIRECTORY + '/fb_post_results.csv', 'w')
@@ -149,15 +151,15 @@ for worksheet in sh2.worksheets():
     # All posts in last month
     all_posts_in_month = graph.get_all_connections(
         id=facebook_page[0]['Facebook Page ID'], connection_name="posts",
-        since=datetime(year, month, 1, 0, 0, 0),
-        until=datetime(year, month, last_day_in_month, 23, 59, 59),
+        since=datetime(year, month, 1, 0, 0, 0, tzinfo=timezone.utc).isoformat(),
+        until=datetime(year, month, last_day_in_month, 23, 59, 59, tzinfo=timezone.utc).isoformat(),
     )
     # threads = []
     jobs = Queue()
     for index, post in enumerate(all_posts_in_month):
         jobs.put((facebook_page[0], post, index,))
 
-    for _ in range(8):
+    for _ in range(4):
         t = threading.Thread(target=process_queue, args=(jobs,))
         # threads.append(t)
         t.start()
@@ -168,7 +170,7 @@ print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 spreadsheet = client.open_by_key('1uOFJHbns2ftrMuBm0l4BFHRHdKwYlETK1Jw_IfNhxAs')
 
 worksheet = spreadsheet.get_worksheet(0)
-worksheet.resize(1)
+# worksheet.resize(1)
 with open(FILE_DIRECTORY + '/fb_post_results.csv', 'r', encoding='utf-8') as file_obj:
     csv_reader = csv.reader(file_obj, delimiter=',')
     all_rows = list(csv_reader)

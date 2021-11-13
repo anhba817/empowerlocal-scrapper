@@ -89,7 +89,7 @@ print("UPLOADING SCRAPED DATA TO GOOGLE SHEET...")
 spreadsheet = client.open_by_key('1CqlVVAtsWCf5YhG3wIz5IDmfey0s6zEMJrg4768VpyY')
 
 worksheet = spreadsheet.get_worksheet(0)
-worksheet.resize(1)
+# worksheet.resize(1)
 with open(FILE_DIRECTORY + '/web_article_results.csv', 'r', encoding='utf-8') as file_obj:
     csv_reader = csv.reader(file_obj, delimiter=',')
     all_rows = list(csv_reader)

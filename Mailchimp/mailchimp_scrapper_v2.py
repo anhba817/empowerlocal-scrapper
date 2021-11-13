@@ -11,7 +11,7 @@ import sys
 import calendar
 import csv
 import json
-import threading
+import threading, time
 from queue import Queue
 
 FILE_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -72,13 +72,13 @@ track_links = gsclient.open_by_key('1GSoBnWHA6MvcRxqg2zOzLPF8Gta2vdHeQSL7Jyjgv1g
 
 with open(FILE_DIRECTORY + '/mailchimp_campaign.csv', 'w') as campaign_file:
     campaign_writer = csv.writer(campaign_file)
-    campaign_writer.writerow(['Send Time', 'Client', 'Emails Sent', 'Campaign Title', 'Campaign ID',
+    campaign_writer.writerow(['Send Time', 'Client', 'Emails Sent', 'Emails Sent Success', 'Campaign Title', 'Campaign ID',
                     'List Name', 'Subject Line', 'Total Opens', 'Unique Opens', 'Open Rate', 'Total Clicks',
                     'Unique Clicks', 'Click Rate', 'Facebook Likes'])
 
 with open(FILE_DIRECTORY + '/mailchimp_url.csv', 'w') as url_file:
     url_writer = csv.writer(url_file)
-    url_writer.writerow(['Source', 'Client', 'URL', 'Total Clicks', 'Unique Clicks'])
+    url_writer.writerow(['Date', 'Source', 'Client', 'Page Title', 'URL', 'Total Clicks', 'Unique Clicks'])
 
 campaign_writer_lock = threading.Lock()
 url_writer_lock = threading.Lock()
@@ -90,6 +90,7 @@ def process_queue(q):
             print("Processing campaigns %s" % campaign['campaign_title'])
             send_time = campaign['send_time'][0:10]
             emails_sent = campaign['emails_sent']
+            emails_sent_success = campaign['emails_sent'] - campaign["bounces"]["hard_bounces"] - campaign["bounces"]["soft_bounces"] - campaign["bounces"]["syntax_errors"]
             campaign_id = campaign['id']
             campaign_title = campaign['campaign_title']
             list_name = campaign['list_name']
@@ -116,9 +117,11 @@ def process_queue(q):
                     urls_info[url['url']]['members'] = [member["email_id"] for member in members]
                     urls_info[url['url']]['campaign_id'] = campaign['id']
                     urls_info[url['url']]['campaign_title'] = campaign['campaign_title']
+                    urls_info[url['url']]['date'] = send_time
                     url_to_search = url['url'].split("?")[0]
                     urls_info[url['url']]['client'] = ''
                     urls_info[url['url']]['source'] = ''
+                    urls_info[url['url']]['page_title'] = ''
                     track_link = next((item for item in track_links if url_to_search in item["Short tracking link"]), None)
                     if track_link:
                         campaign_client.append(track_link['Campaign name'])
@@ -127,6 +130,7 @@ def process_queue(q):
                         if article:
                             urls_info[url['url']]['client'] = article['Client']
                             urls_info[url['url']]['source'] = article['Source']
+                            urls_info[url['url']]['page_title'] = article['Page Title']
                             campaign_client.append(article['Client'])
 
             while campaign_writer_lock.locked():
@@ -139,6 +143,7 @@ def process_queue(q):
                 send_time,
                 ", ".join(set(campaign_client)),
                 emails_sent,
+                emails_sent_success,
                 campaign_title,
                 campaign_id,
                 list_name,
@@ -162,8 +167,10 @@ def process_queue(q):
             url_writer = csv.writer(f)
             for url_info in urls_info:
                 url_writer.writerow([
+                    urls_info[url_info]['date'],
                     urls_info[url_info]['source'],
                     urls_info[url_info]['client'],
+                    urls_info[url_info]['page_title'],
                     url_info,
                     urls_info[url_info]['total_clicks'],
                     len(list(set(urls_info[url_info]['members']))),
@@ -171,7 +178,8 @@ def process_queue(q):
             f.close()
             url_writer_lock.release()
             q.task_done()
-        except:
+        except Exception as e:
+            print(e)
             print("    Error happen when processing campaign %s" % campaign['campaign_title'])
             q.task_done()
 
@@ -220,7 +228,7 @@ with open(FILE_DIRECTORY + '/mailchimp_campaign.csv', 'r', encoding='utf-8') as 
 # URL data
 spreadsheet2 = gsclient.open_by_key('1i0oYDHq50WlRinIj6EolVJPOk9NDSWIsB7VQqpHKRE0')
 worksheet2 = spreadsheet2.get_worksheet(0)
-worksheet2.resize(1)
+# worksheet2.resize(1)
 with open(FILE_DIRECTORY + '/mailchimp_url.csv', 'r', encoding='utf-8') as file_obj:
     csv_reader = csv.reader(file_obj, delimiter=',')
     all_rows = list(csv_reader)
